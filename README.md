@@ -71,7 +71,8 @@ aaa {
 }
 ```
 
-The set of combinator exposed by the library helps defining `Tree`'s `pretty` method:
+The set of combinators exposed by the library helps defining `Tree`'s `pretty`
+method:
 
 ```dart
 Document get pretty => (text(name) + _brackets).group;
