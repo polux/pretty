@@ -47,7 +47,8 @@ class _DocType {
 abstract class Document {
   _DocType get _type;
 
-  static bool _fits(int width, _Stack stack) {
+  static bool _fits(int width, int level, Document doc) {
+    _Stack stack = new _EmptyStack().cons(level, null, doc);
     while (true) {
       if (width < 0) return false;
       if (stack.isEmpty) return true;
@@ -151,7 +152,7 @@ abstract class Document {
           break;
         case _DocType.GROUP:
           _Group group = doc;
-          if (_fits(width - numChars, tail.cons(level, null, group.doc))) {
+          if (_fits(width - numChars, level, group.doc)) {
             stack = tail.cons(level, true, group.doc);
           } else {
             stack = tail.cons(level, false, group.doc);

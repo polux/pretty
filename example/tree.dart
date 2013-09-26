@@ -35,7 +35,7 @@ final someTree = new Tree("aaa",
          new Tree("ii", [])])]);
 
 void main() {
-  for (int width in [100, 50, 30, 10]) {
+  for (int width in [100, 50, 20, 10]) {
     print(someTree.pretty.render(width));
     print("");
   }
