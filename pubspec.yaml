@@ -1,4 +1,5 @@
 name: pretty
+version: 0.0.1
+author: Paul Brauner <polux@google.com>
 description: A sample command-line application
-#dependencies:
-#  unittest: any
+homepage: https://github.com/polux/pretty
