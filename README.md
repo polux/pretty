@@ -16,7 +16,7 @@ class Tree {
   final List<Tree> children;
   Tree(this.name, this.children);
 
-  Document get pretty => ...
+  Document get pretty => // see below
 }
 
 final someTree = new Tree("aaa",
@@ -32,7 +32,7 @@ final someTree = new Tree("aaa",
 void main() {
   for (int width in [100, 50, 30, 10]) {
     print(someTree.pretty.render(width));
-    print("\n");
+    print("");
   }
 }
 ```
@@ -74,17 +74,17 @@ aaa {
 The set of combinator exposed by the library helps defining `Tree`'s `pretty` method:
 
 ```dart
-  Document get pretty => (text(name) + _brackets).group;
+Document get pretty => (text(name) + _brackets).group;
 
-  Document get _brackets {
-    return children.isEmpty
-        ? empty
-        : text(" {") + (line + _prettyChildren).nest(2) + line + text("}");
-  }
+Document get _brackets {
+  return children.isEmpty
+      ? empty
+      : text(" {") + (line + _prettyChildren).nest(2) + line + text("}");
+}
 
-  Document get _prettyChildren {
-    return (text(",") + line).join(children.map((c) => c.pretty));
-  }
+Document get _prettyChildren {
+  return (text(",") + line).join(children.map((c) => c.pretty));
+}
 ```
 
 More documentation is underway.
