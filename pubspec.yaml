@@ -3,3 +3,6 @@ version: 0.0.4
 author: Paul Brauner <polux@google.com>
 description: A sample command-line application
 homepage: https://github.com/polux/pretty
+dev_dependencies:
+  persistent: any
+  unittest: any
