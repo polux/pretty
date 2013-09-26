@@ -1,0 +1,90 @@
+# Pretty-Printing Combinators
+
+A Dart port of [Christian Lindig's strict
+version](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.34.2200) of
+[Wadler's pretty-printing
+combinators](http://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf).
+The present version deforests away the second intermediate tree of Lindig's
+implementation, which should make it slightly more efficient.
+
+
+This is what this library allows for:
+
+```dart
+class Tree {
+  final String name;
+  final List<Tree> children;
+  Tree(this.name, this.children);
+
+  Document get pretty => ...
+}
+
+final someTree = new Tree("aaa",
+    [new Tree("bbbbb",
+        [new Tree("ccc", []),
+         new Tree("dd", [])]),
+    new Tree("eee", []),
+    new Tree("ffff",
+        [new Tree("gg", []),
+         new Tree("hhh", []),
+         new Tree("ii", [])])]);
+
+void main() {
+  for (int width in [100, 50, 30, 10]) {
+    print(someTree.pretty.render(width));
+    print("\n");
+  }
+}
+```
+
+Output:
+
+```
+aaa { bbbbb { ccc, dd }, eee, ffff { gg, hhh, ii } }
+
+aaa {
+  bbbbb { ccc, dd },
+  eee,
+  ffff { gg, hhh, ii }
+}
+
+aaa {
+  bbbbb {
+    ccc,
+    dd
+  },
+  eee,
+  ffff { gg, hhh, ii }
+}
+
+aaa {
+  bbbbb {
+    ccc,
+    dd
+  },
+  eee,
+  ffff {
+    gg,
+    hhh,
+    ii
+  }
+}
+```
+
+The set of combinator exposed by the library helps defining `Tree`'s `pretty` method:
+
+```dart
+  Document get pretty => (text(name) + _brackets).group;
+
+  Document get _brackets {
+    return children.isEmpty
+        ? empty
+        : text(" {") + (line + _prettyChildren).nest(2) + line + text("}");
+  }
+
+  Document get _prettyChildren {
+    return (text(",") + line).join(children.map((c) => c.pretty));
+  }
+```
+
+More documentation is underway.
