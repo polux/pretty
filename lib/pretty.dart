@@ -5,32 +5,50 @@
 
 library pretty;
 
-class _StackFrame {
-  int level;
-  bool flat;
-  Document doc;
-
-  _StackFrame(this.level, this.flat, this.doc);
-}
-
-abstract class _Stack {
+abstract class _RenderStack {
   bool get isEmpty;
-  _Stack cons(int level, bool flat, Document doc) {
-    return new _NonEmptyStack(new _StackFrame(level, flat, doc), this);
+  _RenderStack cons(int level, bool flat, Document doc) {
+    return new _RenderNonEmptyStack(level, flat, doc, this);
   }
 }
 
-class _NonEmptyStack extends _Stack {
-  final _StackFrame head;
-  final _Stack tail;
+class _RenderNonEmptyStack extends _RenderStack {
+  final int level;
+  final bool flat;
+  final Document doc;
+  final _RenderStack tail;
   final bool isEmpty = false;
-  _NonEmptyStack(this.head, this.tail);
+
+  _RenderNonEmptyStack(this.level, this.flat, this.doc, this.tail);
 }
 
-class _EmptyStack extends _Stack {
+class _RenderEmptyStack extends _RenderStack {
   final bool isEmpty = true;
-  _EmptyStack();
+  _RenderEmptyStack();
 }
+
+
+abstract class _FitStack {
+  bool get isEmpty;
+  _FitStack cons(int level, Document doc) {
+    return new _FitNonEmptyStack(level, doc, this);
+  }
+}
+
+class _FitNonEmptyStack extends _FitStack {
+  final int level;
+  final Document doc;
+  final _FitStack tail;
+  final bool isEmpty = false;
+
+  _FitNonEmptyStack(this.level, this.doc, this.tail);
+}
+
+class _FitEmptyStack extends _FitStack {
+  final bool isEmpty = true;
+  _FitEmptyStack();
+}
+
 
 class _DocType {
   final int number;
@@ -48,16 +66,15 @@ abstract class Document {
   _DocType get _type;
 
   static bool _fits(int width, int level, Document doc) {
-    _Stack stack = new _EmptyStack().cons(level, null, doc);
+    _FitStack stack = new _FitEmptyStack().cons(level, doc);
     while (true) {
       if (width < 0) return false;
       if (stack.isEmpty) return true;
       else {
-        _NonEmptyStack nStack = stack;
-        _StackFrame head = nStack.head;
-        _Stack tail = nStack.tail;
-        int level = head.level;
-        Document doc = head.doc;
+        _FitNonEmptyStack nStack = stack;
+        int level = nStack.level;
+        Document doc = nStack.doc;
+        _FitStack tail = nStack.tail;
 
         switch (doc._type) {
           case _DocType.NIL:
@@ -65,9 +82,7 @@ abstract class Document {
             break;
           case _DocType.CONCAT:
             _Concat concat = doc;
-            stack = tail
-                .cons(level, null, concat.right)
-                .cons(level, null, concat.left);
+            stack = tail.cons(level, concat.right).cons(level, concat.left);
             break;
           case _DocType.TEXT:
             _Text text = doc;
@@ -76,7 +91,7 @@ abstract class Document {
             break;
           case _DocType.NEST:
             _Nest nest = doc;
-            stack = tail.cons(level + nest.n, null, nest.doc);
+            stack = tail.cons(level + nest.n, nest.doc);
             break;
           case _DocType.LINE:
             width--;
@@ -84,7 +99,7 @@ abstract class Document {
             break;
           case _DocType.GROUP:
             _Group group = doc;
-            stack = tail.cons(level, null, group.doc);
+            stack = tail.cons(level, group.doc);
             break;
         }
       }
@@ -106,14 +121,13 @@ abstract class Document {
 
   void renderToSink(int width, StringSink sink) {
     int numChars = 0;
-    _Stack stack = new _EmptyStack().cons(0, false, this);
+    _RenderStack stack = new _RenderEmptyStack().cons(0, false, this);
     while (!stack.isEmpty) {
-      _NonEmptyStack nStack = stack;
-      _StackFrame head = nStack.head;
-      _Stack tail = nStack.tail;
-      int level = head.level;
-      bool flat = head.flat;
-      Document doc = head.doc;
+      _RenderNonEmptyStack nStack = stack;
+      int level = nStack.level;
+      bool flat = nStack.flat;
+      Document doc = nStack.doc;
+      _RenderStack tail = nStack.tail;
 
       switch (doc._type) {
         case _DocType.NIL:
