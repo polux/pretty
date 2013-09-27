@@ -5,49 +5,27 @@
 
 library pretty;
 
-abstract class _RenderStack {
+abstract class _Stack {
   bool get isEmpty;
-  _RenderStack cons(int level, bool flat, Document doc) {
-    return new _RenderNonEmptyStack(level, flat, doc, this);
+  _Stack cons(int level, bool flat, Document doc) {
+    return new _NonEmptyStack(level, flat, doc, this);
   }
 }
 
-class _RenderNonEmptyStack extends _RenderStack {
+class _NonEmptyStack extends _Stack {
   final int level;
   final bool flat;
   final Document doc;
-  final _RenderStack tail;
+  final _Stack tail;
   final bool isEmpty = false;
 
-  _RenderNonEmptyStack(this.level, this.flat, this.doc, this.tail);
+  _NonEmptyStack(this.level, this.flat, this.doc, this.tail);
 }
 
-class _RenderEmptyStack extends _RenderStack {
+class _EmptyStack extends _Stack {
   final bool isEmpty = true;
-  _RenderEmptyStack();
+  _EmptyStack();
 }
-
-
-abstract class _FitStack {
-  bool get isEmpty;
-  _FitStack cons(Document doc) {
-    return new _FitNonEmptyStack(doc, this);
-  }
-}
-
-class _FitNonEmptyStack extends _FitStack {
-  final Document doc;
-  final _FitStack tail;
-  final bool isEmpty = false;
-
-  _FitNonEmptyStack(this.doc, this.tail);
-}
-
-class _FitEmptyStack extends _FitStack {
-  final bool isEmpty = true;
-  _FitEmptyStack();
-}
-
 
 class _DocType {
   final int number;
@@ -64,15 +42,17 @@ class _DocType {
 abstract class Document {
   _DocType get _type;
 
-  static bool _fits(int width, Document doc) {
-    _FitStack stack = new _FitEmptyStack().cons(doc);
+  static bool debug = true;
+  static bool _fits(int width, _Stack stack) {
     while (true) {
       if (width < 0) return false;
       if (stack.isEmpty) return true;
       else {
-        _FitNonEmptyStack nStack = stack;
+        _NonEmptyStack nStack = stack;
+        int level = nStack.level;
+        bool flat = nStack.flat;
         Document doc = nStack.doc;
-        _FitStack tail = nStack.tail;
+        _Stack tail = nStack.tail;
 
         switch (doc._type) {
           case _DocType.NIL:
@@ -80,7 +60,9 @@ abstract class Document {
             break;
           case _DocType.CONCAT:
             _Concat concat = doc;
-            stack = tail.cons(concat.right).cons(concat.left);
+            stack = tail
+                .cons(level, flat, concat.right)
+                .cons(level, flat, concat.left);
             break;
           case _DocType.TEXT:
             _Text text = doc;
@@ -89,15 +71,19 @@ abstract class Document {
             break;
           case _DocType.NEST:
             _Nest nest = doc;
-            stack = tail.cons(nest.doc);
+            stack = tail.cons(level + nest.n, flat, nest.doc);
             break;
           case _DocType.LINE:
-            width--;
-            stack = tail;
+            if (flat) {
+              width--;
+              stack = tail;
+            } else {
+              return true;
+            }
             break;
           case _DocType.GROUP:
             _Group group = doc;
-            stack = tail.cons(group.doc);
+            stack = tail.cons(level, true, group.doc);
             break;
         }
       }
@@ -119,13 +105,13 @@ abstract class Document {
 
   void renderToSink(int width, StringSink sink) {
     int numChars = 0;
-    _RenderStack stack = new _RenderEmptyStack().cons(0, false, this);
+    _Stack stack = new _EmptyStack().cons(0, false, this);
     while (!stack.isEmpty) {
-      _RenderNonEmptyStack nStack = stack;
+      _NonEmptyStack nStack = stack;
       int level = nStack.level;
       bool flat = nStack.flat;
       Document doc = nStack.doc;
-      _RenderStack tail = nStack.tail;
+      _Stack tail = nStack.tail;
 
       switch (doc._type) {
         case _DocType.NIL:
@@ -164,7 +150,7 @@ abstract class Document {
           break;
         case _DocType.GROUP:
           _Group group = doc;
-          if (_fits(width - numChars, group.doc)) {
+          if (_fits(width - numChars, tail.cons(level, true, group.doc))) {
             stack = tail.cons(level, true, group.doc);
           } else {
             stack = tail.cons(level, false, group.doc);
