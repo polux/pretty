@@ -29,6 +29,5 @@ void testImplemMatchesModel() {
 }
 
 main() {
-  final prettyTree = someTree.pretty(implemFactory);
   test('implem matches model', testImplemMatchesModel);
 }
