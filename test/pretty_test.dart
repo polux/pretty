@@ -29,5 +29,8 @@ void testImplemMatchesModel() {
 }
 
 main() {
-  test('implem matches model', testImplemMatchesModel);
+  final prettyTree = someTree.pretty(implemFactory);
+  print(prettyTree.render(19));
+  print(prettyTree.render(18));
+  //test('implem matches model', testImplemMatchesModel);
 }

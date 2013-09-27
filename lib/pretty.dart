@@ -30,18 +30,17 @@ class _RenderEmptyStack extends _RenderStack {
 
 abstract class _FitStack {
   bool get isEmpty;
-  _FitStack cons(int level, Document doc) {
-    return new _FitNonEmptyStack(level, doc, this);
+  _FitStack cons(Document doc) {
+    return new _FitNonEmptyStack(doc, this);
   }
 }
 
 class _FitNonEmptyStack extends _FitStack {
-  final int level;
   final Document doc;
   final _FitStack tail;
   final bool isEmpty = false;
 
-  _FitNonEmptyStack(this.level, this.doc, this.tail);
+  _FitNonEmptyStack(this.doc, this.tail);
 }
 
 class _FitEmptyStack extends _FitStack {
@@ -65,14 +64,13 @@ class _DocType {
 abstract class Document {
   _DocType get _type;
 
-  static bool _fits(int width, int level, Document doc) {
-    _FitStack stack = new _FitEmptyStack().cons(level, doc);
+  static bool _fits(int width, Document doc) {
+    _FitStack stack = new _FitEmptyStack().cons(doc);
     while (true) {
       if (width < 0) return false;
       if (stack.isEmpty) return true;
       else {
         _FitNonEmptyStack nStack = stack;
-        int level = nStack.level;
         Document doc = nStack.doc;
         _FitStack tail = nStack.tail;
 
@@ -82,7 +80,7 @@ abstract class Document {
             break;
           case _DocType.CONCAT:
             _Concat concat = doc;
-            stack = tail.cons(level, concat.right).cons(level, concat.left);
+            stack = tail.cons(concat.right).cons(concat.left);
             break;
           case _DocType.TEXT:
             _Text text = doc;
@@ -91,7 +89,7 @@ abstract class Document {
             break;
           case _DocType.NEST:
             _Nest nest = doc;
-            stack = tail.cons(level + nest.n, nest.doc);
+            stack = tail.cons(nest.doc);
             break;
           case _DocType.LINE:
             width--;
@@ -99,7 +97,7 @@ abstract class Document {
             break;
           case _DocType.GROUP:
             _Group group = doc;
-            stack = tail.cons(level, group.doc);
+            stack = tail.cons(group.doc);
             break;
         }
       }
@@ -166,7 +164,7 @@ abstract class Document {
           break;
         case _DocType.GROUP:
           _Group group = doc;
-          if (_fits(width - numChars, level, group.doc)) {
+          if (_fits(width - numChars, group.doc)) {
             stack = tail.cons(level, true, group.doc);
           } else {
             stack = tail.cons(level, false, group.doc);
