@@ -8,50 +8,62 @@ library model;
 import 'package:persistent/persistent.dart';
 import 'package:pretty/pretty.dart' as implem;
 
-class Document implements implem.Document {
-  final PersistentSet<String> strs;
+_minimumBy(Iterable xs, int compare(x, y)) {
+  var result = xs.first;
+  for (final x in xs.skip(1)) {
+    if (compare(x, result) < 0) {
+      result = x;
+    }
+  }
+  return result;
+}
 
-  Document(this.strs);
-  Document._from(Iterable<String> strs) : this(new PersistentSet.from(strs));
+/// [str1] is smaller than [str2] iff it is better.
+int _compareDocs(int width, String str1, String str2) {
+  return _lexico(width, str1.split('\n'), str2.split('\n'));
+}
+
+int _lexico(int width, Iterable lines1, Iterable lines2) {
+  if (lines1.isEmpty && lines2.isEmpty) return 0;
+  if (lines1.isEmpty) return -1;
+  if (lines2.isEmpty) return 1;
+  final comp = _compareLines(width, lines1.first, lines2.first);
+  return (comp == 0)
+      ? _lexico(width, lines1.skip(1), lines2.skip(1))
+      : comp;
+}
+
+int _compareLines(int width, String line1, String line2) {
+  if (line1.length <= width && line2.length <= width)
+    return line2.length.compareTo(line1.length);
+  if (line1.length <= width && line2.length > width)
+    return -1;
+  if (line1.length > width && line2.length <= width)
+    return 1;
+  return line1.length.compareTo(line2.length);
+}
+
+class Document implements implem.Document {
+  PersistentSet<_SimpleDocument> sdocs;
+
+  Document(Iterable<_SimpleDocument> this.sdocs);
 
   Document operator +(Document doc) {
-    return new Document._from(strs.expand(
-        (str1) => doc.strs.map((str2) => str1 + str2)));
+    final newSdocs = sdocs.expand((sdoc1) =>
+        doc.sdocs.map((sdoc2) => new _Concat(sdoc1, sdoc2)));
+    return new Document(new PersistentSet.from(newSdocs));
   }
 
-  static final _SPACES = new RegExp(r"\s+", multiLine: true);
-  String _flatten(String str) => str.replaceAll(_SPACES, ' ');
-  Document get group => new Document(strs.insert(_flatten(strs.first)));
-
-  _spaces(int n) => new List.filled(n, ' ').join('');
-  Document nest(int n) {
-    return new Document._from(strs.map(
-        (str) => str.replaceAll('\n', '\n' + _spaces(n))));
+  Document get group {
+    final flattened = sdocs.map((d) => d.flatten());
+    return new Document(flattened.union(sdocs));
   }
 
-  int _compareDocs(int width, String str1, String str2) {
-    return _lexico(width, str1.split('\n'), str2.split('\n'));
-  }
-  int _lexico(int width, Iterable lines1, Iterable lines2) {
-    if (lines1.isEmpty && lines2.isEmpty) return 0;
-    if (lines1.isEmpty) return -1;
-    if (lines2.isEmpty) return 1;
-    final comp = _compareLines(width, lines1.first, lines2.first);
-    return (comp == 0)
-        ? _lexico(width, lines1.skip(1), lines2.skip(1))
-        : comp;
-  }
-  int _compareLines(int width, String line1, String line2) {
-    if (line1.length <= width && line2.length <= width)
-      return line2.length.compareTo(line1.length);
-    if (line1.length <= width && line2.length > width)
-      return -1;
-    if (line1.length > width && line2.length <= width)
-      return 1;
-    return line1.length.compareTo(line2.length);
-  }
+  Document nest(int n) => new Document(sdocs.map((d) => d.nest(n)));
+
   String render(int width) {
-    return (strs.toList()..sort((s1, s2) => _compareDocs(width, s1, s2))).first;
+    compare(s1, s2) => _compareDocs(width, s1, s2);
+    return _minimumBy(sdocs.map((d) => d.render()), compare);
   }
 
   void renderToSink(int width, StringSink sink) {
@@ -69,8 +81,74 @@ class Document implements implem.Document {
   }
 }
 
-_singleton(str) => new Document(new PersistentSet.from([str]));
+abstract class _SimpleDocument {
+  _SimpleDocument flatten();
+  _SimpleDocument nest(int n);
+  String render();
+}
 
-final Document empty = _singleton("");
-final Document line = _singleton("\n");
-Document text(String str) => _singleton(str);
+class _Nil extends _SimpleDocument {
+  _SimpleDocument flatten() => this;
+  _SimpleDocument nest(int n) => this;
+  String render() => '';
+
+  int get hashCode => 42;
+  bool operator ==(other) => other is _Nil;
+}
+
+class _Text extends _SimpleDocument {
+  final String str;
+
+  _Text(this.str);
+
+  _SimpleDocument flatten() => this;
+  _SimpleDocument nest(int n) => this;
+  String render() => str;
+
+  int get hashCode => str.hashCode;
+  bool operator ==(other) => (other is _Text) && (str == other.str);
+}
+
+class _Concat extends _SimpleDocument {
+  final _SimpleDocument left;
+  final _SimpleDocument right;
+
+  _Concat(this.left, this.right);
+
+  _SimpleDocument flatten() => new _Concat(left.flatten(), right.flatten());
+  _SimpleDocument nest(int n) => new _Concat(left.nest(n), right.nest(n));
+  String render() => left.render() + right.render();
+
+  int get hashCode => 31 * left.hashCode + right.hashCode;
+  bool operator ==(other) {
+    return (other is _Concat)
+        && (left == other.left)
+        && (right == other.right);
+  }
+}
+
+class _Line extends _SimpleDocument {
+  final int level;
+  final _SimpleDocument doc;
+
+  _Line(this.level, this.doc);
+
+  _SimpleDocument flatten() => new _Concat(new _Text(" "), doc);
+  _SimpleDocument nest(int n) => new _Line(level + n, doc);
+  String render() => '\n' + _spaces() + doc.render();
+
+  String _spaces() => new List.filled(level, ' ').join();
+
+  int get hashCode => 31 * level.hashCode + doc.hashCode;
+  bool operator ==(other) {
+    return (other is _Line)
+        && (level == other.level)
+        && (doc == other.doc);
+  }
+}
+
+_singleton(sdoc) => new Document(new PersistentSet().insert(sdoc));
+
+final Document empty = _singleton(new _Nil());
+final Document line = _singleton(new _Line(0, new _Nil()));
+Document text(String str) => _singleton(new _Text(str));
