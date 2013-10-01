@@ -3,6 +3,8 @@
 
 // Author: Paul Brauner (polux@google.com)
 
+import 'dart:io';
+import 'package:args/args.dart' as args;
 import 'package:propcheck/propcheck.dart';
 import 'package:unittest/unittest.dart';
 import 'src/factories.dart';
@@ -48,13 +50,25 @@ bool implemMatchesModel(algebra.Document doc) {
 final Property implemMatchesModelProp =
     forall(algebra.documents, implemMatchesModel);
 
+
+
 main() {
+  final parser = new args.ArgParser();
+  parser.addFlag('help', negatable: false);
+  parser.addFlag('quiet', negatable: false);
+  final flags = parser.parse(new Options().arguments);
+
+  if (flags['help']) {
+    print(parser.getUsage());
+    return;
+  }
+
   test('quickcheck implem matches model', () {
-    final qc = new QuickCheck(maxSize: 250, seed: 42);
+    final qc = new QuickCheck(maxSize: 250, seed: 42, quiet: flags['quiet']);
     qc.check(implemMatchesModelProp);
   });
   test('smallcheck implem matches model', () {
-    final sc = new SmallCheck(depth: 4);
+    final sc = new SmallCheck(depth: 4, quiet: flags['quiet']);
     sc.check(implemMatchesModelProp);
   });
   test('implem matches model for some tree', testImplemMatchesModel);
