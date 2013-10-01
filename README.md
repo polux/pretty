@@ -1,5 +1,7 @@
 # Pretty-Printing Combinators
 
+[![Build Status](https://drone.io/github.com/polux/pretty/status.png)](https://drone.io/github.com/polux/pretty/latest)
+
 A Dart port of [Christian Lindig's strict
 version](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.34.2200) of
 [Wadler's pretty-printing
