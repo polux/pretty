@@ -1,8 +1,10 @@
 name: pretty
-version: 0.0.5
+version: 0.0.6
 author: Paul Brauner <polux@google.com>
 description: A sample command-line application
 homepage: https://github.com/polux/pretty
 dev_dependencies:
+  enumerators: any
   persistent: any
+  propcheck: any
   unittest: any

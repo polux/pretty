@@ -35,8 +35,12 @@ final someTree = new Tree("aaa",
          new Tree("ii", [])])]);
 
 void main() {
+  final s = (line.group + line.group).render(1);
+  print("[${s.replaceAll("\n", "\\n")}]");
+
   for (int width in [100, 50, 20, 10]) {
     print(someTree.pretty.render(width));
     print("");
   }
+
 }

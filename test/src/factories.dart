@@ -3,7 +3,7 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-library test_helpers;
+library factories;
 
 import 'package:pretty/pretty.dart' as implem;
 import 'model.dart' as model;
@@ -28,27 +28,3 @@ class ModelFactory extends DocumentFactory {
 
 final implemFactory = new ImplemFactory();
 final modelFactory = new ModelFactory();
-
-class Tree {
-  final String name;
-  final List<Tree> children;
-
-  Tree(this.name, this.children);
-
-  implem.Document pretty(DocumentFactory factory) {
-    return (factory.text(name) + _brackets(factory)).group;
-  }
-
-  implem.Document _brackets(DocumentFactory factory) {
-    return children.isEmpty
-        ? factory.empty
-        : (factory.text(" {") +
-              (factory.line + _prettyChildren(factory)).nest(2) +
-              factory.line + factory.text("}"));
-  }
-
-  implem.Document _prettyChildren(DocumentFactory factory) {
-    return (factory.text(",") + factory.line)
-        .join(children.map((c) => c.pretty(factory)));
-  }
-}

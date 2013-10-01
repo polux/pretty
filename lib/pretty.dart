@@ -83,7 +83,7 @@ abstract class Document {
             break;
           case _DocType.GROUP:
             _Group group = doc;
-            stack = tail.cons(level, true, group.doc);
+            stack = tail.cons(level, flat, group.doc);
             break;
         }
       }
