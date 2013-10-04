@@ -64,7 +64,7 @@ main() {
   }
 
   test('quickcheck implem matches model', () {
-    final qc = new QuickCheck(maxSize: 250, seed: 42, quiet: flags['quiet']);
+    final qc = new QuickCheck(maxSize: 300, seed: 42, quiet: flags['quiet']);
     qc.check(implemMatchesModelProp);
   });
   test('smallcheck implem matches model', () {
