@@ -313,6 +313,47 @@ class _Group extends Document {
   }
 }
 
+
+Document join({ Iterable<dynamic> iterable: const <dynamic>[] }) =>
+  iterable.isEmpty
+    ? empty
+    : (text(',') + line).join(iterable.map(
+        (p) => (p is Document) ? p : ( (p is Pretty) ? p.pretty : text(p.toString()) )
+    ));
+
+
+Document format({ String name : '', Iterable<dynamic> iterable: const <dynamic>[], int identation: 2,
+                String delimiters: '{}', Document emptyValue }) {
+
+  name = name.trim();
+
+  if (name.isEmpty && iterable.isEmpty) {
+    return empty;
+  }
+  else if (!name.isEmpty && iterable.isEmpty) {
+    return text(name) + ((emptyValue == null) ? empty : space + emptyValue);
+  }
+  return
+    (name.isEmpty ? empty : text(name) + space) +
+    text(delimiters[0]) + (line + join(iterable: iterable)).nest(identation) + line + text(delimiters[1]);
+}
+
+
+Document object({ String name : '', Iterable<dynamic> iterable: const <dynamic>[], int identation: 2 }) =>
+  format(name: name, iterable: iterable, identation: identation, delimiters: '{}');
+
+
+Document list({ String name : '', Iterable<dynamic> iterable: const <dynamic>[], int identation: 2 }) =>
+  format(name: name, iterable: iterable, identation: identation, delimiters: '[]', emptyValue: text('[]'));
+
+
+abstract class Pretty {
+  Document get pretty;
+
+  String toString() => pretty.group.render(0);
+}
+
 final Document empty = new _Nil();
 Document text(String str) => new _Text(str);
 final Document line = new _Line();
+final Document space = new _Text(' ');
