@@ -151,4 +151,5 @@ _singleton(sdoc) => new Document(new PersistentSet().insert(sdoc));
 
 final Document empty = _singleton(new _Nil());
 final Document line = _singleton(new _Line(0, new _Nil()));
+final Document space = _singleton(new _Text(' '));
 Document text(String str) => _singleton(new _Text(str));
