@@ -4,7 +4,7 @@
 // Author: Paul Brauner (polux@google.com)
 //         Rafael de Andrade (rafa.bra@gmail.com)
 
-import '../lib/pretty.dart';
+import 'package:pretty/pretty.dart';
 
 class Tree extends Object with Pretty {
   final String name;
