@@ -11,21 +11,18 @@ import 'model.dart' as model;
 abstract class DocumentFactory {
   implem.Document empty;
   implem.Document line;
-  implem.Document space;
   implem.Document text(String str);
 }
 
 class ImplemFactory extends DocumentFactory {
   implem.Document empty = implem.empty;
   implem.Document line = implem.line;
-  implem.Document space = implem.space;
   implem.Document text(String str) => implem.text(str);
 }
 
 class ModelFactory extends DocumentFactory {
   implem.Document empty = model.empty;
   implem.Document line = model.line;
-  implem.Document space = model.space;
   implem.Document text(String str) => model.text(str);
 }
 

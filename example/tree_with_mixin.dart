@@ -5,6 +5,7 @@
 //         Rafael de Andrade (rafa.bra@gmail.com)
 
 import 'package:pretty/pretty.dart';
+import 'package:pretty/pretty_extras.dart';
 
 class Tree extends Object with Pretty {
   final String name;
@@ -12,7 +13,8 @@ class Tree extends Object with Pretty {
 
   Tree(this.name, this.children);
 
-  Document get pretty => object(name: name, iterable: children).group;
+  Document get pretty =>
+    text('$name ') + tree(children.map((t) => t.prettyGroup));
 }
 
 final someTree = new Tree("aaa",
@@ -26,12 +28,8 @@ final someTree = new Tree("aaa",
          new Tree("ii", [])])]);
 
 void main() {
-  final s = (line.group + line.group).render(1);
-  print("[${s.replaceAll("\n", "\\n")}]");
-
   for (int width in [100, 50, 20, 10]) {
-    print(someTree.pretty.render(width));
+    print(someTree.prettyGroup.render(width));
     print("");
   }
-
 }
