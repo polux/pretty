@@ -42,18 +42,22 @@ Document _join(Iterable<Document> iterable) =>
 
 
 Document _enclose(Iterable<Document> iterable, Document open, Document close,
-                 Document emptyValue, { int indentation: _DEFAULT_INDENTATION }) =>
+              Document emptyValue, { int indentation: _DEFAULT_INDENTATION }) =>
   (iterable != null && !iterable.isEmpty)
     ? open + (line + _join(iterable)).nest(indentation) + line +  close
     : emptyValue;
 
 
-Document map(Map<String, Document> map, { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(_joinMap(map), openBrace, closeBrace, emptyMap, indentation: indentation);
+Document map(Map<String, Document> map,
+             { int indentation: _DEFAULT_INDENTATION }) =>
+  _enclose(_joinMap(map), openBrace, closeBrace, emptyMap,
+      indentation: indentation);
 
 
-Document list(Iterable<Document> list, { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(list, openBracket, closeBracket, emptyList, indentation: indentation);
+Document list(Iterable<Document> list,
+              { int indentation: _DEFAULT_INDENTATION }) =>
+  _enclose(list, openBracket, closeBracket, emptyList,
+      indentation: indentation);
 
 
 Document tree(String name, Iterable<Document> iterable,
