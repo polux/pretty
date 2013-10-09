@@ -14,10 +14,10 @@ class Tree extends Object with Pretty {
   Tree(this.name, this.children);
 
   Document get pretty =>
-    text('$name ') + tree(children.map((t) => t.prettyGroup));
+    tree(name, children.map((Tree t) => t.group), indentation: 2);
 }
 
-final someTree = new Tree("aaa",
+final Tree someTree = new Tree("aaa",
     [new Tree("bbbbb",
         [new Tree("ccc", []),
          new Tree("dd", [])]),
@@ -29,7 +29,7 @@ final someTree = new Tree("aaa",
 
 void main() {
   for (int width in [100, 50, 20, 10]) {
-    print(someTree.prettyGroup.render(width));
+    print(someTree.group.render(width));
     print("");
   }
 }
