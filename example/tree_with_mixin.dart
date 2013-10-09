@@ -14,7 +14,7 @@ class Tree extends Object with Pretty {
   Tree(this.name, this.children);
 
   Document get pretty =>
-    tree(name, children.map((Tree t) => t.group), indentation: 2);
+    prettyTree(name, children.map((Tree t) => t.pretty), indentation: 2);
 }
 
 final Tree someTree = new Tree("aaa",
@@ -29,7 +29,7 @@ final Tree someTree = new Tree("aaa",
 
 void main() {
   for (int width in [100, 50, 20, 10]) {
-    print(someTree.group.render(width));
+    print(someTree.render(width));
     print("");
   }
 }
