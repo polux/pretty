@@ -12,24 +12,18 @@ const int _DEFAULT_INDENTATION = 2;
 
 final Document space = text(' '),
                comma = text(','),
-               openBrace = text('{'),
-               closeBrace = text('}'),
-               emptyMap = openBrace + space + closeBrace,
-               openBracket = text('['),
-               closeBracket = text(']'),
-               emptyList = openBracket + closeBracket;
+               openingBrace = text('{'),
+               closingBrace = text('}'),
+               emptyMap = openingBrace + closingBrace,
+               openingBracket = text('['),
+               closingBracket = text(']'),
+               emptyList = openingBracket + closingBracket;
 
 
 Iterable<Document> _joinMap(Map<String, Document> map) {
-
-  String punctuateKey(String key) {
-    key = key.trim();
-    return key.endsWith(':') ? '$key' : '$key:';
-  }
-
   List<Document> result = <Document>[];
   map.forEach((String key, Document value) {
-    result.add(text(punctuateKey(key)) + space + value);
+    result.add(text('$key: ') + value);
   });
   return result;
 }
@@ -37,32 +31,32 @@ Iterable<Document> _joinMap(Map<String, Document> map) {
 
 Document _join(Iterable<Document> iterable) =>
   (iterable != null && !iterable.isEmpty)
-    ? (comma + line).join(iterable)
-    : empty;
+      ? (comma + line).join(iterable.map((d) => d.group))
+      : empty;
 
 
 Document _enclose(Iterable<Document> iterable, Document open, Document close,
               Document emptyValue, { int indentation: _DEFAULT_INDENTATION }) =>
-  (iterable != null && !iterable.isEmpty)
-    ? open + (line + _join(iterable)).nest(indentation) + line +  close
-    : emptyValue;
+  ((iterable != null && !iterable.isEmpty)
+      ? open + (line + _join(iterable)).nest(indentation) + line +  close
+      : emptyValue).group;
 
 
-Document map(Map<String, Document> map,
+Document prettyMap(Map<String, Document> map,
              { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(_joinMap(map), openBrace, closeBrace, emptyMap,
+  _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap,
       indentation: indentation);
 
 
-Document list(Iterable<Document> list,
+Document prettyList(Iterable<Document> list,
               { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(list, openBracket, closeBracket, emptyList,
+  _enclose(list, openingBracket, closingBracket, emptyList,
       indentation: indentation);
 
 
-Document tree(String name, Iterable<Document> iterable,
+Document prettyTree(String name, Iterable<Document> iterable,
                 { int indentation: _DEFAULT_INDENTATION }) =>
-  text(name) + _enclose(iterable, (space + openBrace), closeBrace, empty,
+  text(name) + _enclose(iterable, (space + openingBrace), closingBrace, empty,
       indentation: indentation);
 
 
@@ -71,5 +65,7 @@ abstract class Pretty {
 
   Document get group => pretty.group;
 
-  String toString() => group.render(0);
+  String render(int width) => group.render(width);
+
+  String toString() => render(0);
 }
