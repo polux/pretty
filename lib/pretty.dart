@@ -40,9 +40,10 @@ class _DocType {
 }
 
 abstract class Document {
+  const Document._();
+
   _DocType get _type;
 
-  static bool debug = true;
   static bool _fits(int width, _Stack stack) {
     while (true) {
       if (width < 0) return false;
@@ -169,14 +170,15 @@ abstract class Document {
 
 class _Nil extends Document {
   final _DocType _type = _DocType.NIL;
-  final int hashCode = "Nil".hashCode;
 
-  _Nil();
+  const _Nil() : super._();
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Nil);
   }
+
+  int get hashCode => "Nil".hashCode;
 
   String toString() => "Nil()";
 }
@@ -185,20 +187,19 @@ class _Concat extends Document {
   final _DocType _type = _DocType.CONCAT;
   final Document left;
   final Document right;
-  final int hashCode;
 
-  _Concat(Document left, Document right)
-      : this.left = left
-      , this.right = right
-      , this.hashCode = _Concat._hashCode(left, right);
+  const _Concat(Document left, Document right)
+      : super._()
+      , this.left = left
+      , this.right = right;
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Concat  && left == other.left && right == other.right);
   }
 
-  static int _hashCode(left, right) {
-    int result = "Concat".hashCode;
+  int get hashCode {
+    int result =  "Concat".hashCode;
     result = 31 * result + left.hashCode;
     result = 31 * result + right.hashCode;
     return result;
@@ -217,19 +218,18 @@ class _Nest extends Document {
   final _DocType _type = _DocType.NEST;
   final int n;
   final Document doc;
-  final int hashCode;
 
-  _Nest(int n, Document doc)
-      : this.n = n
-      , this.doc = doc
-      , this.hashCode = _Nest._hashCode(n, doc);
+  const _Nest(int n, Document doc)
+      : super._()
+      , this.n = n
+      , this.doc = doc;
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Nest && n == other.n && doc == other.doc);
   }
 
-  static int _hashCode(n, doc) {
+  int get hashCode {
     int result = "Nest".hashCode;
     result = 31 * result + n.hashCode;
     result = 31 * result + doc.hashCode;
@@ -248,18 +248,17 @@ class _Nest extends Document {
 class _Text extends Document {
   final _DocType _type = _DocType.TEXT;
   final String str;
-  final int hashCode;
 
-  _Text(String str)
-      : this.str = str
-      , this.hashCode = _Text._hashCode(str);
+  const _Text(String str)
+      : super._()
+      , this.str = str;
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Text && str == other.str);
   }
 
-  static int _hashCode(str) {
+  int get hashCode {
     int result = "Text".hashCode;
     result = 31 * result + str.hashCode;
     return result;
@@ -274,14 +273,15 @@ class _Text extends Document {
 
 class _Line extends Document {
   final _DocType _type = _DocType.LINE;
-  final int hashCode = "Line".hashCode;
 
-  _Line();
+  const _Line() : super._();
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Line);
   }
+
+  int get hashCode => "Line".hashCode;
 
   String toString() => "Line()";
 }
@@ -289,18 +289,17 @@ class _Line extends Document {
 class _Group extends Document {
   final _DocType _type = _DocType.GROUP;
   final Document doc;
-  final int hashCode;
 
-  _Group(Document doc)
-      : this.doc = doc
-      , this.hashCode = _Group._hashCode(doc);
+  const _Group(Document doc)
+      : super._()
+      , this.doc = doc;
 
   bool operator ==(other) {
     return identical(this, other)
         || (other is _Group && doc == other.doc);
   }
 
-  static int _hashCode(doc) {
+  int get hashCode {
     int result = "Group".hashCode;
     result = 31 * result + doc.hashCode;
     return result;
@@ -313,6 +312,6 @@ class _Group extends Document {
   }
 }
 
-final Document empty = new _Nil();
+final Document empty = const _Nil();
 Document text(String str) => new _Text(str);
-final Document line = new _Line();
+final Document line = const _Line();
