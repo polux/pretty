@@ -6,6 +6,7 @@
 library pretty_extras;
 
 import 'pretty.dart';
+export 'pretty.dart';
 
 
 const int _DEFAULT_INDENTATION = 2;
