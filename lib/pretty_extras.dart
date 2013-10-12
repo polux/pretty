@@ -43,14 +43,52 @@ Document _enclose(Iterable<Document> iterable, Document open, Document close,
       : emptyValue).group;
 
 
-Document prettyMap(Map<String, Document> map,
-                   {int indentation: _DEFAULT_INDENTATION}) =>
+Document _prettyMap(Map<String, Document> map, int indentation) =>
   _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap, indentation);
 
 
-Document prettyList(Iterable<Document> list,
-                    {int indentation: _DEFAULT_INDENTATION}) =>
+Document _prettyList(Iterable<Document> list, int indentation) =>
   _enclose(list, openingBracket, closingBracket, emptyList, indentation);
+
+
+typedef Document ToDocumentFunction();
+
+Document _mapToDocument(Object value, int indentation) {
+
+  if (value is Document) {
+    return value;
+  }
+  if(value is Pretty) {
+    return (value as Pretty).pretty;
+  }
+  if(value is ToDocumentFunction) {
+    return (value as ToDocumentFunction)();
+  }
+  if (value is Iterable) {
+    final documentList = (value as Iterable).map((v) =>
+        _mapToDocument(v, indentation)
+    );
+    return _prettyList(documentList, indentation);
+  }
+  if (value is Map<String, Object>) {
+    final map = value as Map<String, Object>,
+          values = map.values.map((v) => _mapToDocument(v, indentation)),
+          documentMap = new Map.fromIterables(map.keys, values);
+
+    return _prettyMap(documentMap, indentation);
+  }
+  return value != null ? text(value.toString()) : empty;
+}
+
+
+Document prettyMap(Map<String, Object> map,
+                  {int indentation: _DEFAULT_INDENTATION}) =>
+  _mapToDocument(map, indentation);
+
+
+Document prettyList(Iterable list,
+                    {int indentation: _DEFAULT_INDENTATION}) =>
+  _mapToDocument(list, indentation);
 
 
 Document prettyTree(String name, Iterable<Document> iterable,
