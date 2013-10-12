@@ -37,28 +37,26 @@ Document _join(Iterable<Document> iterable) =>
 
 
 Document _enclose(Iterable<Document> iterable, Document open, Document close,
-              Document emptyValue, { int indentation: _DEFAULT_INDENTATION }) =>
+              Document emptyValue, int indentation) =>
   ((iterable != null && !iterable.isEmpty)
       ? open + (line + _join(iterable)).nest(indentation) + line +  close
       : emptyValue).group;
 
 
 Document prettyMap(Map<String, Document> map,
-             { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap,
-      indentation: indentation);
+                   {int indentation: _DEFAULT_INDENTATION}) =>
+  _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap, indentation);
 
 
 Document prettyList(Iterable<Document> list,
-              { int indentation: _DEFAULT_INDENTATION }) =>
-  _enclose(list, openingBracket, closingBracket, emptyList,
-      indentation: indentation);
+                    {int indentation: _DEFAULT_INDENTATION}) =>
+  _enclose(list, openingBracket, closingBracket, emptyList, indentation);
 
 
 Document prettyTree(String name, Iterable<Document> iterable,
-                { int indentation: _DEFAULT_INDENTATION }) =>
-  text(name) + _enclose(iterable, (space + openingBrace), closingBrace, empty,
-      indentation: indentation);
+                    {int indentation: _DEFAULT_INDENTATION}) =>
+  text(name) + _enclose(iterable,
+      (space + openingBrace), closingBrace, empty, indentation);
 
 
 abstract class Pretty {
