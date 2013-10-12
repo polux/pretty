@@ -64,7 +64,7 @@ abstract class Pretty {
 
   Document get group => pretty.group;
 
-  String render(int width) => group.render(width);
+  String render([int width = 0]) => group.render(width);
 
-  String toString() => render(0);
+  String toString() => render();
 }
