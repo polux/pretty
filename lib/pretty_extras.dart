@@ -21,9 +21,9 @@ final Document space = text(' '),
                emptyList = openingBracket + closingBracket;
 
 
-Iterable<Document> _joinMap(Map<String, Document> map) {
+Iterable<Document> _joinMap(Map<Object, Document> map) {
   List<Document> result = <Document>[];
-  map.forEach((String key, Document value) {
+  map.forEach((Object key, Document value) {
     result.add(text('$key: ') + value);
   });
   return result;
@@ -43,7 +43,7 @@ Document _enclose(Iterable<Document> iterable, Document open, Document close,
       : emptyValue).group;
 
 
-Document _prettyMap(Map<String, Document> map, int indentation) =>
+Document _prettyMap(Map<Object, Document> map, int indentation) =>
   _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap, indentation);
 
 
@@ -70,8 +70,8 @@ Document _mapToDocument(Object value, int indentation) {
     );
     return _prettyList(documentList, indentation);
   }
-  if (value is Map<String, Object>) {
-    final map = value as Map<String, Object>,
+  if (value is Map<Object, Object>) {
+    final map = value as Map<Object, Object>,
           values = map.values.map((v) => _mapToDocument(v, indentation)),
           documentMap = new Map.fromIterables(map.keys, values);
 
@@ -81,7 +81,7 @@ Document _mapToDocument(Object value, int indentation) {
 }
 
 
-Document prettyMap(Map<String, Object> map,
+Document prettyMap(Map<Object, Object> map,
                   {int indentation: _DEFAULT_INDENTATION}) =>
   _mapToDocument(map, indentation);
 
