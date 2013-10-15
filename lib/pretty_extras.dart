@@ -95,9 +95,7 @@ Document prettyTree(String name, Iterable<Document> iterable,
 abstract class Pretty {
   Document get pretty;
 
-  Document get group => pretty.group;
-
-  String render([int width = 0]) => group.render(width);
+  String render([int width = 0]) => pretty.group.render(width);
 
   String toString() => render();
 }
