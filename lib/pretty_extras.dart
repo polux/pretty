@@ -76,26 +76,20 @@ Document _prettyJson(Object value, int indentation) {
 }
 
 
-Document prettyMap(Map<Object, Object> map,
-                  {int indentation: _DEFAULT_INDENTATION}) =>
-  _prettyJson(map, indentation);
-
-
-Document prettyList(Iterable list,
-                    {int indentation: _DEFAULT_INDENTATION}) =>
-  _prettyJson(list, indentation);
-
-
-Document prettyTree(String name, Iterable<Document> iterable,
-                    {int indentation: _DEFAULT_INDENTATION}) =>
-  text(name) + _enclose(iterable,
-      (space + openingBrace), closingBrace, empty, indentation);
-
-
 abstract class Pretty {
   Document get pretty;
 
   String render([int width = 0]) => pretty.group.render(width);
 
   String toString() => render();
+
+  int get indentation => _DEFAULT_INDENTATION;
+
+  Document prettyMap(Map<Object, Object> map) => _prettyJson(map, indentation);
+
+  Document prettyList(Iterable list) => _prettyJson(list, indentation);
+
+  Document prettyTree(String name, Iterable<Document> iterable) =>
+    text(name) + _enclose(iterable,
+        (space + openingBrace), closingBrace, empty, indentation);
 }
