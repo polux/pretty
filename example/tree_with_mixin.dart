@@ -13,7 +13,10 @@ class Tree extends Object with Pretty {
   Tree(this.name, this.children);
 
   Document get pretty =>
-    prettyTree(name, children.map((Tree t) => t.pretty), indentation: 2);
+    prettyTree(name, children.map((Tree t) => t.pretty));
+
+  // This is optional, defaults to 2;
+  //int get indentation => 2;
 }
 
 final Tree someTree = new Tree("aaa",
