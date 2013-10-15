@@ -51,8 +51,6 @@ Document _prettyList(Iterable<Document> list, int indentation) =>
   _enclose(list, openingBracket, closingBracket, emptyList, indentation);
 
 
-typedef Document ToDocumentFunction();
-
 Document _mapToDocument(Object value, int indentation) {
 
   if (value is Document) {
@@ -60,9 +58,6 @@ Document _mapToDocument(Object value, int indentation) {
   }
   if(value is Pretty) {
     return (value as Pretty).pretty;
-  }
-  if(value is ToDocumentFunction) {
-    return (value as ToDocumentFunction)();
   }
   if (value is Iterable) {
     final documentList = (value as Iterable).map((v) =>
