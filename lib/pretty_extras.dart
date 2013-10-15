@@ -13,18 +13,25 @@ const int _DEFAULT_INDENTATION = 2;
 
 final Document space = text(' '),
                comma = text(','),
+               colon = text(':'),
                openingBrace = text('{'),
                closingBrace = text('}'),
                emptyMap = openingBrace + closingBrace,
                openingBracket = text('['),
                closingBracket = text(']'),
-               emptyList = openingBracket + closingBracket;
+               emptyList = openingBracket + closingBracket,
+               doubleQuotes = text('"'),
+               nullText = text('null');
 
 
-Iterable<Document> _joinMap(Map<Object, Document> map) {
+Iterable<Document> _joinMap(Map<Object, Document> map, bool jsonComply) {
   List<Document> result = <Document>[];
   map.forEach((Object key, Document value) {
-    result.add(text('$key: ') + value);
+    final keyText =
+        jsonComply
+            ? (doubleQuotes + text('$key') + doubleQuotes + colon)
+            : text('$key') + colon + space;
+    result.add(keyText +  value);
   });
   return result;
 }
@@ -43,15 +50,18 @@ Document _enclose(Iterable<Document> iterable, Document open, Document close,
       : emptyValue).group;
 
 
-Document _prettyMap(Map<Object, Document> map, int indentation) =>
-  _enclose(_joinMap(map), openingBrace, closingBrace, emptyMap, indentation);
+Document _prettyMap(Map<Object, Document> map, int indentation,
+                    bool jsonComply) =>
+  _enclose(_joinMap(map, jsonComply), openingBrace, closingBrace, emptyMap,
+      indentation);
 
 
 Document _prettyList(Iterable<Document> list, int indentation) =>
   _enclose(list, openingBracket, closingBracket, emptyList, indentation);
 
 
-Document _prettyObject(Object value, int indentation) {
+Document _prettyObject(Object value, int indentation,
+                      [bool jsonComply = false]) {
 
   if (value is Document) {
     return value;
@@ -61,20 +71,34 @@ Document _prettyObject(Object value, int indentation) {
   }
   if (value is Iterable) {
     final documentList = (value as Iterable).map((v) =>
-        _prettyObject(v, indentation)
+        _prettyObject(v, indentation, jsonComply)
     );
     return _prettyList(documentList, indentation);
   }
   if (value is Map<Object, Object>) {
     final map = value as Map<Object, Object>,
-          values = map.values.map((v) => _prettyObject(v, indentation)),
+          values =
+              map.values.map((v) => _prettyObject(v, indentation, jsonComply)),
           documentMap = new Map.fromIterables(map.keys, values);
 
-    return _prettyMap(documentMap, indentation);
+    return _prettyMap(documentMap, indentation, jsonComply);
   }
-  return value != null ? text(value.toString()) : empty;
+  final valueText = text('$value');
+  if(!jsonComply) {
+    return value != null ? valueText : empty;
+  }
+  return
+      value != null
+          ? ((value is bool) || (value is num))
+              ? valueText
+              : (doubleQuotes + valueText + doubleQuotes)
+          : nullText;
 }
 
+
+Document prettyJson(Map<Object, Object> map,
+                  {int indentation: _DEFAULT_INDENTATION}) =>
+  _prettyObject(map, indentation, true);
 
 
 Document prettyMap(Map<Object, Object> map,
