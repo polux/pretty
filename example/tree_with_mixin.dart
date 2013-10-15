@@ -2,7 +2,7 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 // Author: Paul Brauner (polux@google.com)
-//         Rafael de Andrade (rafa.bra@gmail.com)
+//         Rafael Brandão (rafa.bra@gmail.com)
 
 import 'package:pretty/pretty_extras.dart';
 
