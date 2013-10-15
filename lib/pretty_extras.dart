@@ -51,7 +51,7 @@ Document _prettyList(Iterable<Document> list, int indentation) =>
   _enclose(list, openingBracket, closingBracket, emptyList, indentation);
 
 
-Document _mapToDocument(Object value, int indentation) {
+Document _prettyJson(Object value, int indentation) {
 
   if (value is Document) {
     return value;
@@ -61,13 +61,13 @@ Document _mapToDocument(Object value, int indentation) {
   }
   if (value is Iterable) {
     final documentList = (value as Iterable).map((v) =>
-        _mapToDocument(v, indentation)
+        _prettyJson(v, indentation)
     );
     return _prettyList(documentList, indentation);
   }
   if (value is Map<Object, Object>) {
     final map = value as Map<Object, Object>,
-          values = map.values.map((v) => _mapToDocument(v, indentation)),
+          values = map.values.map((v) => _prettyJson(v, indentation)),
           documentMap = new Map.fromIterables(map.keys, values);
 
     return _prettyMap(documentMap, indentation);
@@ -78,12 +78,12 @@ Document _mapToDocument(Object value, int indentation) {
 
 Document prettyMap(Map<Object, Object> map,
                   {int indentation: _DEFAULT_INDENTATION}) =>
-  _mapToDocument(map, indentation);
+  _prettyJson(map, indentation);
 
 
 Document prettyList(Iterable list,
                     {int indentation: _DEFAULT_INDENTATION}) =>
-  _mapToDocument(list, indentation);
+  _prettyJson(list, indentation);
 
 
 Document prettyTree(String name, Iterable<Document> iterable,
