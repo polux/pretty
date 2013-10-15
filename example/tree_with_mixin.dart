@@ -12,12 +12,10 @@ class Tree extends Object with Pretty {
 
   Tree(this.name, this.children);
 
-  Document get pretty =>
-    prettyTree(name, children.map((Tree t) => t.pretty));
+  Document get pretty => prettyTree(name, children);
 
   //Identation defaults to 2. Clients could overwrite like this
-  //Document get pretty =>
-  //  prettyTree(name, children.map((Tree t) => t.pretty), identation: 4);
+  //Document get pretty => prettyTree(name, children, identation: 4);
 }
 
 final Tree someTree = new Tree("aaa",

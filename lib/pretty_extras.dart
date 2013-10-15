@@ -111,9 +111,9 @@ Document prettyList(Iterable list,
   _prettyObject(list, indentation);
 
 
-Document prettyTree(String name, Iterable<Document> iterable,
+Document prettyTree(String name, Iterable<Pretty> iterable,
                     {int indentation: _DEFAULT_INDENTATION}) =>
-  text(name) + _enclose(iterable,
+  text(name) + _enclose(iterable.map((t) => t.pretty),
       (space + openingBrace), closingBrace, empty, indentation);
 
 
