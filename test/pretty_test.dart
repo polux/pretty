@@ -3,7 +3,6 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-import 'dart:io';
 import 'package:args/args.dart' as args;
 import 'package:propcheck/propcheck.dart';
 import 'package:unittest/unittest.dart';
@@ -52,11 +51,11 @@ final Property implemMatchesModelProp =
 
 
 
-main() {
+main(List<String> arguments) {
   final parser = new args.ArgParser();
   parser.addFlag('help', negatable: false);
   parser.addFlag('quiet', negatable: false);
-  final flags = parser.parse(new Options().arguments);
+  final flags = parser.parse(arguments);
 
   if (flags['help']) {
     print(parser.getUsage());
