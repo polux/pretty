@@ -1,11 +1,13 @@
 name: pretty
-version: 0.0.7
+version: 0.0.8
 author: Paul Brauner <polux@google.com>
-description: A sample command-line application
+description: Pretty-printing combinators
 homepage: https://github.com/polux/pretty
+environment:
+  sdk: '>=0.8.10+6 <2.0.0'
 dev_dependencies:
-  args: any
-  enumerators: '>=0.4.2 <0.5.0'
-  persistent: '>=0.7.4 <0.8.0'
-  propcheck: '>=0.3.5 <0.4.0'
-  unittest: any
+  args: '>=0.9.0 <0.10.0'
+  enumerators: '>=0.5.0 <0.6.0'
+  persistent: '>=0.8.0 <0.9.0'
+  propcheck: '>=0.4.0 <0.5.0'
+  unittest: '>=0.9.0 <0.10.0'
