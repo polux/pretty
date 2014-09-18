@@ -1,5 +1,5 @@
 name: pretty
-version: 0.0.8
+version: 0.0.9
 author: Paul Brauner <polux@google.com>
 description: Pretty-printing combinators
 homepage: https://github.com/polux/pretty
