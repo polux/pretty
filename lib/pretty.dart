@@ -75,8 +75,9 @@ abstract class Document {
             stack = tail.cons(level + nest.n, flat, nest.doc);
             break;
           case _DocType.LINE:
+            _Line line = doc;
             if (flat) {
-              width--;
+              width -= line.alternative.length;
               stack = tail;
             } else {
               return true;
@@ -136,9 +137,10 @@ abstract class Document {
           stack = tail.cons(level + nest.n, flat, nest.doc);
           break;
         case _DocType.LINE:
+          _Line line = doc;
           if (flat) {
-            sink.write(" ");
-            numChars++;
+            sink.write(line.alternative);
+            numChars += line.alternative.length;
             stack = tail;
           } else {
             sink.write("\n");
@@ -273,12 +275,13 @@ class _Text extends Document {
 
 class _Line extends Document {
   final _DocType _type = _DocType.LINE;
+  final String alternative;
 
-  const _Line() : super._();
+  const _Line(this.alternative) : super._();
 
   bool operator ==(other) {
     return identical(this, other)
-        || (other is _Line);
+        || (other is _Line && alternative == other.alternative);
   }
 
   int get hashCode => "Line".hashCode;
@@ -314,4 +317,5 @@ class _Group extends Document {
 
 final Document empty = const _Nil();
 Document text(String str) => new _Text(str);
-final Document line = const _Line();
+Document lineOr(String alternative) => new _Line(alternative);
+final Document line = const _Line(" ");
