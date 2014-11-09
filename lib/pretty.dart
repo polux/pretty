@@ -37,6 +37,7 @@ class _DocType {
   static const _DocType TEXT = const _DocType(3);
   static const _DocType LINE = const _DocType(4);
   static const _DocType GROUP = const _DocType(5);
+  static const _DocType OR = const _DocType(6);
 }
 
 abstract class Document {
@@ -87,12 +88,17 @@ abstract class Document {
             _Group group = doc;
             stack = tail.cons(level, flat, group.doc);
             break;
+          case _DocType.OR:
+            _Or or = doc;
+            stack = tail.cons(level, flat, or.doc1);
+            break;
         }
       }
     }
   }
 
   Document operator +(Document doc) => new _Concat(this, doc);
+  Document operator |(Document doc) => new _Or(this, doc);
   Document nest(int n) => new _Nest(n, this);
   Document get group => new _Group(this);
   Document join(Iterable<Document> docs) {
@@ -157,6 +163,14 @@ abstract class Document {
             stack = tail.cons(level, true, group.doc);
           } else {
             stack = tail.cons(level, false, group.doc);
+          }
+          break;
+        case _DocType.OR:
+          _Or group = doc;
+          if (_fits(width - numChars, tail.cons(level, true, group.doc1))) {
+            stack = tail.cons(level, true, group.doc1);
+          } else {
+            stack = tail.cons(level, flat, group.doc2);
           }
           break;
       }
@@ -313,6 +327,28 @@ class _Group extends Document {
   _Group copy({Document doc}) {
     return new _Group((doc != null) ? doc : this.doc);
   }
+}
+
+class _Or extends Document {
+  final _DocType _type = _DocType.OR;
+  final Document doc1;
+  final Document doc2;
+
+  const _Or(this.doc1, this.doc2) : super._();
+
+  bool operator ==(other) {
+    return identical(this, other)
+        || (other is _Or && doc1 == other.doc1 && doc2 == other.doc2);
+  }
+
+  int get hashCode {
+    int result = "Or".hashCode;
+    result = 31 * result + doc1.hashCode;
+    result = 31 * result + doc2.hashCode;
+    return result;
+  }
+
+  String toString() => "Or($doc1, $doc2)";
 }
 
 final Document empty = const _Nil();
