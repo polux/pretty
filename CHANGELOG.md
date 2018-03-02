@@ -1,5 +1,9 @@
 # Changelog for pretty
 
+## 0.2.0
+
+- Make strong mode compliant
+
 ## 0.1.0
 
 - Add `lineOr`

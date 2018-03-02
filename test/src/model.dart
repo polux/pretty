@@ -46,16 +46,17 @@ int _compareLines(int width, String line1, String line2) {
 class Document implements implem.Document {
   PersistentSet<_SimpleDocument> sdocs;
 
-  Document(Iterable<_SimpleDocument> this.sdocs);
+  Document(PersistentSet<_SimpleDocument> this.sdocs);
 
-  Document operator +(Document doc) {
+  Document operator +(implem.Document doc) {
     final newSdocs = sdocs.expand((sdoc1) =>
-        doc.sdocs.map((sdoc2) => new _Concat(sdoc1, sdoc2)));
+    (doc as Document).sdocs.map((sdoc2) => new _Concat(sdoc1, sdoc2)));
     return new Document(new PersistentSet.from(newSdocs));
   }
 
   Document get group {
-    final flattened = sdocs.map((d) => d.flatten());
+    final flattened =
+        sdocs.map((d) => d.flatten()) as PersistentSet<_SimpleDocument>;
     return new Document(flattened.union(sdocs));
   }
 
@@ -70,7 +71,7 @@ class Document implements implem.Document {
     sink.write(render(width));
   }
 
-  Document join(Iterable<Document> docs) {
+  Document join(Iterable<implem.Document> docs) {
     if (docs.isEmpty) return empty;
     Document result = empty;
     for (Document doc in docs.take(docs.length - 1)) {

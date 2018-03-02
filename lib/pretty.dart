@@ -191,9 +191,9 @@ class _Concat extends Document {
   final Document right;
 
   const _Concat(Document left, Document right)
-      : super._()
-      , this.left = left
-      , this.right = right;
+      : this.left = left
+      , this.right = right
+      , super._();
 
   bool operator ==(other) {
     return identical(this, other)
@@ -222,9 +222,9 @@ class _Nest extends Document {
   final Document doc;
 
   const _Nest(int n, Document doc)
-      : super._()
-      , this.n = n
-      , this.doc = doc;
+      : this.n = n
+      , this.doc = doc
+      , super._();
 
   bool operator ==(other) {
     return identical(this, other)
@@ -252,8 +252,8 @@ class _Text extends Document {
   final String str;
 
   const _Text(String str)
-      : super._()
-      , this.str = str;
+      : this.str = str
+      , super._();
 
   bool operator ==(other) {
     return identical(this, other)
@@ -294,8 +294,8 @@ class _Group extends Document {
   final Document doc;
 
   const _Group(Document doc)
-      : super._()
-      , this.doc = doc;
+      : this.doc = doc
+      , super._();
 
   bool operator ==(other) {
     return identical(this, other)
